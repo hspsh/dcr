@@ -11,13 +11,20 @@ router.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'views/home.json'))
 })
 
+interface Entry {
+  'input': string,
+  'output': string,
+  'name': string,
+  'outputUpdated': boolean
+}
+
 let fetchEntry = async (name: string) => {
   let result = await pg('graphs')
   .where({name: name}).select()
-  .then((item:Array<object>) => item[0])
+  .then((item:Array<Entry>) => item[0])
   .catch((err:Error) => console.error(err))
 
-  return result
+  return result || {'input': '', 'output': '', 'name': '', 'outputUpdated': false}
 }
 
 router.get('/p/:name', async (req, res) => {
@@ -57,7 +64,7 @@ class filesClass {
 }
 
 router.post('/p/:name', async (req, res) => {
-  let entry = await fetchEntry(req.params.name)
+  let entry  = await fetchEntry(req.params.name)
   let files = new filesClass(entry.input, entry.output)
   fs.writeFile(files.input, req.body.content)
     .then(async () => {
