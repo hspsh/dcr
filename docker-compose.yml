@@ -1,0 +1,36 @@
+services:
+  front:
+    build: "./app/"
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    profiles: ["front"]
+  api:
+    build: "./api/"
+    restart: always
+    ports:
+      - "8090:1337"
+    volumes:
+    - "bucket:/bucket"
+    profiles: ["back"]
+    depends_on:
+      - db
+      - versioning
+  db:
+    image: postgres:alpine #TODO
+    restart: always
+    ports:
+      - "2137:5432"
+    volumes:
+      - "db:/dump"
+    profiles: ["back", "db"]
+  versioning:
+    image: alpine:edge #TODO
+    restart: always
+    volumes:
+      - "bucket:/bucket"
+    profiles: ["back"]
+volumes:
+  bucket:
+  db:
