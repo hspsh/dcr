@@ -10,23 +10,29 @@ services:
     build: "./api/"
     restart: always
     ports:
-      - "8090:1337"
+      - "1337:8090"
     volumes:
-    - "bucket:/bucket"
+    - "bucket:/public/bucket"
     profiles: ["back"]
     depends_on:
       - db
       - versioning
   db:
-    image: postgres:alpine #TODO
+    build: "./db/"
     restart: always
-    ports:
+    expose:
       - "2137:5432"
+    profiles: ["back", "db"]
+    depends_on:
+      - dbbackuping
+  dbbackuping:
+    image: alpine:edge
+    restart: always
     volumes:
       - "db:/dump"
     profiles: ["back", "db"]
   versioning:
-    image: alpine:edge #TODO
+    build: "./docker/versioning"
     restart: always
     volumes:
       - "bucket:/bucket"

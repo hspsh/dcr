@@ -19,10 +19,11 @@ Po zmianie kodu, obrazek pod linkiem powinien się zmienić.
 - Kiedy wejdę na główną strone, to wyświetli mi się ekran z inputem tekstu, gdzie wpisując "obrazek", przeniesie mnie do edytora tekstowego na adresie '/p/obrazek'
 - Będąc na adresie '/p/obrazek' wpiszę tekst, który jest poprawnym skryptem graphviza i po zapisie, to przechodząc na '/i/obrazek' wyświetli mi się obrazek
 - Jeżeli na adresie '/p/obrazek' wpiszę niepoprawny skrypt, to na adresie '/i/obrazek' dostanę status 500
-- Jeżeli na adresie '/p/nieobrazek' nie ma obrazka, to dostanę status 400
+- Jeżeli na adresie '/p/nieobrazek' nie ma obrazka, to dostanę status 404
 
-## Wskazówki
-
-- Backend: Na backendzie rozdzielcie odpowiedzialności na controller, service, repository
-- Backend: Python: Flask || NodeJS: ExpressJS
-- Frontend: Jeżeli chcecie się bawić z reactem, to warto spróbować wykorzystać NextJS - ten projekt jednak jest dość mały na to
+## Technologies
+- Front-end: TBA
+- Back-end:
+  - API: Node.js + Express
+  - DB: PostgreSQL
+  - Containers: Docker

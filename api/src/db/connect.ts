@@ -4,10 +4,11 @@ const pg = knex({
   connection: {
     host : '127.0.0.1',
     port : 2137,
-    user : 'postgres', //ENV
-    password : 'password', //ENV
-    database : 'postgres' //ENV?
-  }
+    user : 'postgres',
+    password : 'password',
+    database : 'postgres'
+  },
+  acquireConnectionTimeout: 2000
 });
 
 export default pg
