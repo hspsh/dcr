@@ -16,7 +16,7 @@ class filesClass {
 
 export default async (req:Request, res:Response, pg:Knex) => {
   let entry = await fetchEntry(req.params.name, pg)
-    .catch(err => {; throw err})
+    .catch(err => { throw err})
   let files = new filesClass(entry.input, entry.output)
   let exists = false
 
@@ -33,7 +33,7 @@ export default async (req:Request, res:Response, pg:Knex) => {
         .catch((err:Error) => { throw err })
     })
     .then(item => {
-      return ({status: "Everything guitar'a bq!", exists})
+      return ({status: "Updated!", exists})
     })
-    .catch(err => {throw err})
+    .catch(err => {console.error(err); return ({status: "Error while editing file!", exists})})
 }
