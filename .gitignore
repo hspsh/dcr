@@ -118,4 +118,4 @@ dist
 .pnp.*
 
 # bucket
-api/public/bucket
+bucket/
