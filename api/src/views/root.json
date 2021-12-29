@@ -1,5 +1,19 @@
 {
   "name": "DynamicCodeRenderer",
   "license": "GPLv3.0-or-later",
-  "repository": "https://github.com/hspsh/dcr"
+  "repository": "https://github.com/hspsh/dcr",
+  "api": {
+    "fetchText": {
+      "type": "GET",
+      "url": "{url}/p/{name}"
+    },
+    "postText": {
+      "type": "POST",
+      "url": "{url}/p/{name}"
+    },
+    "fetchImg": {
+      "type": "GET",
+      "url": "{url}/i/{name}"
+    },
+  },
 }
