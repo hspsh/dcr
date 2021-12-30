@@ -9,7 +9,7 @@ interface Entry {
 
 export default async (name: string, pg:Knex) => {
   let result = await pg('graphs')
-  .where({name: name}).select()
+  .where({name: name}).select('name', 'input', 'output', 'outputUpdated')
   .then((item:Array<Entry>) => item[0])
   .catch((err:Error) => {
     throw err
