@@ -40,7 +40,7 @@ export default async (req:Request, res:Response, pg:Knex) => {
         } else {
           try {
             //Place information, in database, that this entry is already rendered
-            await pg('graphs').where({name: req.params.name}).update({outputUpdated: true},   ["name", "outputUpdated"])
+            await pg('graphs').where({name: req.params.name}).update({outputUpdated: true}, ["name", "outputUpdated"])
             console.info("IMAGE UPDATED")
             return {file: entry.output, updated: true, exists}
           } catch (err) {

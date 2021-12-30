@@ -11,7 +11,7 @@ let root = async (req:Request, res:Response) => {
 }
 
 let text = async (req:Request, res:Response) => {
-  const id = "fetch " + crypto.randomBytes(4).toString("hex")
+  const id = "fetchText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
   fetchText(req, res, pg, id)
     .then(item => res.json(item))
@@ -20,7 +20,7 @@ let text = async (req:Request, res:Response) => {
 }
 
 let sendText = async (req:Request, res:Response) => {
-  const id = "fetchImg " + crypto.randomBytes(4).toString("hex")
+  const id = "postText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
   postText(req, res, pg)
     .then(item => {
