@@ -4,11 +4,11 @@ import { Knex } from 'knex'
 
 export default async (req:Request, res:Response, pg:Knex, timeLogID:string) => {
   let entry = await fetchEntry(req.params.name, pg)
-    .catch(err => {; throw err})
+    .catch(err => {throw err})
   let newEntry = false
 
   if (entry.name === '') {
-    let addEntry = async () => {
+    const addEntry = async () => {
       await pg('graphs').insert({
         'input': `./bucket/${req.params.name}`,
         'output': `./bucket/${req.params.name}`,
@@ -21,7 +21,6 @@ export default async (req:Request, res:Response, pg:Knex, timeLogID:string) => {
     }
 
     await addEntry()
-      .catch(err => {throw err})
 
     entry = await fetchEntry(req.params.name, pg)
       .catch(err => {throw err})
