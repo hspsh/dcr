@@ -30,10 +30,8 @@ export default async (req:Request, res:Response, pg:Knex) => {
   return await fs.writeFile(files.input, req.body.content)
     .then(async () => {
       await pg('graphs').where({name: req.params.name}).update({outputUpdated: false}, ["name", "outputUpdated"])
-        .catch((err:Error) => { throw err })
+        .catch(err => { throw err })
     })
-    .then(item => {
-      return ({status: "Updated!", exists})
-    })
+    .then(() => ({status: "Updated!", exists}))
     .catch(err => {console.error(err); return ({status: "Error while editing file!", exists})})
 }
