@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express'
+import crypto from 'crypto'
 import pg from '../db/connect'
 import path from 'path'
 import fetchImg from '../services/fetchImg'
@@ -9,24 +10,33 @@ let root = async (req:Request, res:Response) => {
   res.sendFile(path.join(__dirname, '../views/root.json'))
 }
 
-let getName = async (req:Request, res:Response) => {
-  fetchText(req, res, pg)
+let text = async (req:Request, res:Response) => {
+  const id = "fetchText " + crypto.randomBytes(4).toString("hex")
+  console.time(id)
+  fetchText(req, res, pg, id)
     .then(item => res.json(item))
     .catch(err => res.status(500).json({}))
+    .finally(() => console.timeEnd(id))
 }
 
-let postName = async (req:Request, res:Response) => {
+let sendText = async (req:Request, res:Response) => {
+  const id = "postText " + crypto.randomBytes(4).toString("hex")
+  console.time(id)
   postText(req, res, pg)
     .then(item => {
       item.exists ? res.json(item) : res.status(404).json(item)
     })
     .catch(err => res.status(500).json({}))
+    .finally(() => console.timeEnd(id))
 }
 
 let image = async (req:Request, res:Response) => {
+  const id = "fetchImg " + crypto.randomBytes(4).toString("hex")
+  console.time(id)
   fetchImg(req, res, pg)
     .then(item => item.exists ? res.json(item): res.status(404).json(item))
     .catch(err => res.status(500).json(err.response))
+    .finally(() => console.timeEnd(id))
 }
 
-export {root, getName, postName, image}
+export {root, text, sendText, image}

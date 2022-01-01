@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import crypto from 'crypto'
 import fetchEntry from './fetchEntry'
 import { Knex } from 'knex'
 import path from 'path'
@@ -16,15 +15,12 @@ class filesClass {
 }
 
 export default async (req:Request, res:Response, pg:Knex) => {
-  const id = "postText " + crypto.randomBytes(4).toString("hex")
-  console.time(id)
   let entry = await fetchEntry(req.params.name, pg)
-    .catch(err => {console.timeEnd(id); throw err})
+    .catch(err => { throw err})
   let files = new filesClass(entry.input, entry.output)
   let exists = false
 
   if (entry.name === '') {
-    console.timeEnd(id)
     console.info(`ITEM \"${req.params.name}\" DOES NOT EXIST`)
     return {status: "Does not exist!", exists}
   } else {
@@ -34,11 +30,10 @@ export default async (req:Request, res:Response, pg:Knex) => {
   return await fs.writeFile(files.input, req.body.content)
     .then(async () => {
       await pg('graphs').where({name: req.params.name}).update({outputUpdated: false}, ["name", "outputUpdated"])
-        .catch((err:Error) => {console.timeEnd(id); throw err})
+        .catch((err:Error) => { throw err })
     })
     .then(item => {
-      console.timeEnd(id)
-      return ({status: "Everything guitar'a bq!", exists})
+      return ({status: "Updated!", exists})
     })
-    .catch(err => {console.timeEnd(id); throw err})
+    .catch(err => {console.error(err); return ({status: "Error while editing file!", exists})})
 }

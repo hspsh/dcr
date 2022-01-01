@@ -1,5 +1,75 @@
 {
   "name": "DynamicCodeRenderer",
   "license": "GPLv3.0-or-later",
-  "repository": "https://github.com/hspsh/dcr"
+  "repository": "https://github.com/hspsh/dcr",
+  "api": {
+    "fetchText": {
+      "type": "GET",
+      "url": "{url}/p/{name}",
+      "structure": {
+        "name": {
+          "type": "string",
+          "optional": false,
+          "description": "Name of the element."
+        },
+        "input": {
+          "type": "string",
+          "optional": false,
+          "description": "Path to text file. Add \".gz\" at the end."
+        },
+        "output": {
+          "type": "string",
+          "optional": false,
+          "description": "Path to image file. Add \".png\" at the end."
+        },
+        "outputUpdated": {
+          "type": "boolean",
+          "optional": false,
+          "description": "If true, image is up to date, and is not required to be rerendered."
+        },
+        "newEntry": {
+          "type": "boolean",
+          "optional": false,
+          "description": "If true, this is a new entry."
+        }
+      }
+    },
+    "postText": {
+      "type": "POST",
+      "url": "{url}/p/{name}",
+      "structure": {
+        "status": {
+          "type": "string",
+          "optional": false,
+          "description": "Status of the request."
+        },
+        "exists": {
+          "type": "boolean",
+          "optional": false,
+          "description": "If true, the entry exists."
+        }
+      }
+    },
+    "fetchImg": {
+      "type": "GET",
+      "url": "{url}/i/{name}",
+      "structure": {
+        "file": {
+          "type": "string",
+          "optional": false,
+          "description": "Path to image file. Add \".png\" at the end."
+        },
+        "updated": {
+          "type": "boolean",
+          "optional": false,
+          "description": "If true, image has been rerendered."
+        },
+        "exists": {
+          "type": "boolean",
+          "optional": false,
+          "description": "If true, the entry exists."
+        }
+      }
+    }
+  }
 }
