@@ -1,37 +1,26 @@
 import { Request, Response } from 'express'
-import fetchEntry from './fetchEntry'
+import { fetchEntry } from './fetchEntry'
 import { Knex } from 'knex'
-import path from 'path'
-import * as fs from 'fs/promises'
 
-class filesClass {
-  input: string
-  output: string
-
-  constructor(input:string, output:string) {
-    this.input = path.join(__dirname, "../../public", `${input}.gz`)
-    this.output = path.join(__dirname, "../../public", `${output}.png`)
-  }
-}
-
-export default async (req:Request, res:Response, pg:Knex) => {
+export default async (req:Request, res:Response, pg:Knex, timeLogID:string) => {
   let entry = await fetchEntry(req.params.name, pg)
     .catch(err => { throw err})
-  let files = new filesClass(entry.input, entry.output)
-  let exists = false
+  let exists = true
 
   if (entry.name === '') {
-    console.info(`ITEM \"${req.params.name}\" DOES NOT EXIST`)
+    exists = false
+    console.info(`${timeLogID} ITEM \"${req.params.name}\" DOES NOT EXIST`)
     return {status: "Does not exist!", exists}
-  } else {
-    exists = true
+  } else if (entry.text === req.body.content) {
+    console.info(`${timeLogID} TEXT NOT CHANGED`)
+    return {status: "Text not changed", exists}
   }
 
-  return await fs.writeFile(files.input, req.body.content)
-    .then(async () => {
-      await pg('graphs').where({name: req.params.name}).update({outputUpdated: false}, ["name", "outputUpdated"])
-        .catch(err => { throw err })
-    })
-    .then(() => ({status: "Updated!", exists}))
-    .catch(err => {console.error(err); return ({status: "Error while editing file!", exists})})
+  try {
+    await pg('graphs').where({name: req.params.name}).update({outputUpdated: false, text: req.body.content}, ["name", "outputUpdated", "text"])
+    return ({status: "Updated!", exists})
+  } catch (err) {
+    console.error(`${timeLogID} ERROR: ${err}`)
+    return ({status: "Error while editing entry!", exists})
+  }
 }

@@ -12,16 +12,6 @@
           "optional": false,
           "description": "Name of the element."
         },
-        "input": {
-          "type": "string",
-          "optional": false,
-          "description": "Path to text file. Add \".gz\" at the end."
-        },
-        "output": {
-          "type": "string",
-          "optional": false,
-          "description": "Path to image file. Add \".png\" at the end."
-        },
         "outputUpdated": {
           "type": "boolean",
           "optional": false,
@@ -54,10 +44,10 @@
       "type": "GET",
       "url": "{url}/i/{name}",
       "structure": {
-        "file": {
+        "content": {
           "type": "string",
           "optional": false,
-          "description": "Path to image file. Add \".png\" at the end."
+          "description": "SVG image."
         },
         "updated": {
           "type": "boolean",

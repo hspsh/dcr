@@ -1,59 +1,63 @@
 import { Request, Response } from 'express'
-import util from 'util'
-import fetchEntry from './fetchEntry'
-import path from 'path'
-import { exec, ExecException } from 'child_process'
+import { fetchEntry } from './fetchEntry'
+import { spawn } from 'child_process'
 import { Knex } from 'knex'
 
-class filesClass {
-  input: string
-  output: string
-
-  constructor(input:string, output:string) {
-    this.input = path.join(__dirname, "../../public", `${input}.gz`)
-    this.output = path.join(__dirname, "../../public", `${output}.png`)
-  }
+interface fetchImg {
+  content: string;
+  updated: boolean;
+  exists: boolean;
 }
 
-export default async (req:Request, res:Response, pg:Knex) => {
+export default async (req: Request, res: Response, pg: Knex, timeLogID: string): Promise<fetchImg> => {
   let entry = await fetchEntry(req.params.name, pg)
-    .catch((err:Error) => {throw err})
-  let files = new filesClass(entry.input, entry.output)
-  let exists = false
+    .catch((err: Error) => { throw err })
+  let exists = true
 
   if (entry.name === '') {
-    console.info(`ITEM \"${req.params.name}\" DOES NOT EXIST`)
-    return {file: '', updated: false, exists}
+    exists = false
+    console.info(`${timeLogID} ITEM \"${req.params.name}\" DOES NOT EXIST`)
+    return { content: '', updated: false, exists }
+  } else if (entry.outputUpdated === true) {
+    return { content: entry.img, updated: false, exists }
   } else {
-    exists = true
-  }
-  if (entry.outputUpdated === true) {
-    return {file: entry.output, updated: false, exists}
-  } else {
-    const asyncExec = util.promisify(exec)
-    const renderImage = async () => {
-      try {
-        const { stdout, stderr } = await asyncExec(`dot -Tpng ${files.input} -o ${files.output}`)
-        if (stderr) {
-          console.error(`stderr: ${stderr}`)
-          throw stderr
-        } else {
+    const renderImage = (): Promise<fetchImg> => {
+      return new Promise((resolve, reject) => {
+        const dot = spawn('dot', ['-Tsvg'])
+        let response = { content: '', updated: false, exists }
+
+        // Write entry.text to the stdin of dot process
+        dot.stdin.write(entry.text)
+        dot.stdin.end()
+
+        dot.stdout.on('data', (data: Buffer) => {
           try {
-            //Place information, in database, that this entry is already rendered
-            await pg('graphs').where({name: req.params.name}).update({outputUpdated: true}, ["name", "outputUpdated"])
-            console.info("IMAGE UPDATED")
-            return {file: entry.output, updated: true, exists}
+            response = { content: data.toString(), updated: true, exists }
+            // Add rendered image to database
+            pg('graphs').where({ name: req.params.name }).update({ outputUpdated: true, img: data.toString() }, ["name", "outputUpdated", "img"]).then(() => {
+              console.info(`${timeLogID} UPDATED IMAGE UPLOADED TO DATABASE`)
+            })
           } catch (err) {
             throw err
           }
-        }
-      } catch (err) {
-        console.error(err)
-        throw err
-      }
+        })
+        dot.stderr.on('data', (data: Buffer) => {
+          console.error(`${timeLogID} stderr: ${data.toString()}`)
+          reject(data.toString())
+        })
+        dot.once('exit', (code: number, signal: string) => {
+          if (code === 0) {
+            resolve(response)
+          } else {
+            reject(new Error('Exit with error code: ' + code));
+          }
+        });
+        dot.once('error', (err: Error) => {
+          reject(err)
+        })
+      })
     }
-    return renderImage()
-      .then(item => item)
-      .catch(err => {throw {err, response: {file: entry.output, updated: false, exists}}})
+
+    return await renderImage().catch(err => { throw err })
   }
 }

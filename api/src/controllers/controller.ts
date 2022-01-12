@@ -22,7 +22,7 @@ let text = async (req:Request, res:Response) => {
 let sendText = async (req:Request, res:Response) => {
   const id = "postText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
-  postText(req, res, pg)
+  postText(req, res, pg, id)
     .then(item => {
       item.exists ? res.json(item) : res.status(404).json(item)
     })
@@ -33,9 +33,9 @@ let sendText = async (req:Request, res:Response) => {
 let image = async (req:Request, res:Response) => {
   const id = "fetchImg " + crypto.randomBytes(4).toString("hex")
   console.time(id)
-  fetchImg(req, res, pg)
+  fetchImg(req, res, pg, id)
     .then(item => item.exists ? res.json(item): res.status(404).json(item))
-    .catch(err => res.status(500).json(err.response))
+    .catch(err => res.status(500).json({}))
     .finally(() => console.timeEnd(id))
 }
 
