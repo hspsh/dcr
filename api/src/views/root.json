@@ -12,6 +12,11 @@
           "optional": false,
           "description": "Name of the element."
         },
+        "text": {
+          "type": "string",
+          "optional": false,
+          "description": "Code of the element."
+        },
         "outputUpdated": {
           "type": "boolean",
           "optional": false,
