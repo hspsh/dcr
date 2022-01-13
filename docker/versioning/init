@@ -1,8 +1,0 @@
-#!/bin/sh
-
-ls /bucket
-
-if [! -d "/bucket/.git"]
-then
-  git init
-fi

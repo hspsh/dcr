@@ -1,7 +1,0 @@
-#!/bin/sh
-
-cd /bucket
-
-git add .
-
-git commit -m "cron auto commit - $(date -uI)"
