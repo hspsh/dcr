@@ -21,7 +21,7 @@ const fetchEntry = async (name: string, pg:Knex) => {
     throw err
   })
 
-  return result || {'text': '', 'name': '', 'img': '', 'outputUpdated': false}
+  return result
 }
 
 const fetchEntryText = async (name: string, pg:Knex) => {
@@ -32,7 +32,7 @@ const fetchEntryText = async (name: string, pg:Knex) => {
     throw err
   })
 
-  return result || {'text': '', 'name': '', 'outputUpdated': false}
+  return result
 }
 
 export { fetchEntry, fetchEntryText }
