@@ -13,20 +13,18 @@ let root = async (req:Request, res:Response) => {
 let text = async (req:Request, res:Response) => {
   const id = "fetchText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
-  fetchText(req, res, pg, id)
+  fetchText(req.params.name)
     .then(item => res.json(item))
-    .catch(err => res.status(500).json({}))
+    .catch(err => res.status(500).send(err)) // here should be an error checked for type in the future
     .finally(() => console.timeEnd(id))
 }
 
 let sendText = async (req:Request, res:Response) => {
   const id = "postText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
-  postText(req, res, pg, id)
-    .then(item => {
-      item.exists ? res.json(item) : res.status(404).json(item)
-    })
-    .catch(err => res.status(500).json({}))
+  postText(req.params.name, req.body)
+    .then(item => res.json(item))
+    .catch(err => res.status(500).send(err))
     .finally(() => console.timeEnd(id))
 }
 
@@ -35,7 +33,7 @@ let image = async (req:Request, res:Response) => {
   console.time(id)
   fetchImg(req, res, pg, id)
     .then(item => item.exists ? res.json(item): res.status(404).json(item))
-    .catch(err => res.status(500).json({}))
+    .catch(err => res.status(500).send(err))
     .finally(() => console.timeEnd(id))
 }
 

@@ -1,26 +1,19 @@
-import { Request, Response } from 'express'
-import { fetchEntry } from './fetchEntry'
-import { Knex } from 'knex'
+import graphRepository from './GraphRepository'
 
-export default async (req:Request, res:Response, pg:Knex, timeLogID:string) => {
-  let entry = await fetchEntry(req.params.name, pg)
-    .catch(err => { throw err})
-  let exists = true
+// we don't care here if there is any request, we want just to update or create a content in some entry
+export default async (name: string, content: string) => {
+    let entry = await graphRepository.findByName(name)
 
-  if (entry.name === '') {
-    exists = false
-    console.info(`${timeLogID} ITEM \"${req.params.name}\" DOES NOT EXIST`)
-    return {status: "Does not exist!", exists}
-  } else if (entry.text === req.body.content) {
-    console.info(`${timeLogID} TEXT NOT CHANGED`)
-    return {status: "Text not changed", exists}
-  }
+    if (!entry) {
+        // Use exceptions for unhappy path. It will reject promise if used in async.
+        throw new Error("can't update non existent entry") 
+        // Here it would be nice to have something like new ArgumentError so Controller knows that it is 400 error not 500
+    }
 
-  try {
-    await pg('graphs').where({name: req.params.name}).update({outputUpdated: false, text: req.body.content}, ["name", "outputUpdated", "text"])
-    return ({status: "Updated!", exists})
-  } catch (err) {
-    console.error(`${timeLogID} ERROR: ${err}`)
-    return ({status: "Error while editing entry!", exists})
-  }
+    entry.text = content
+    entry.outputUpdated = false
+
+    return graphRepository.update(entry)
+        .catch(()=>Promise.reject(new Error("Failed to update"))) // it is almost the same as throwing the error 
+    // Here it should be something like DatabaseError, so Controller knows that it should be 500 error
 }
