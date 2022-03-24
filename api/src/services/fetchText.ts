@@ -1,34 +1,22 @@
-import { Request, Response } from 'express'
-import { fetchEntryText } from './fetchEntry'
-import { Knex } from 'knex'
+import graphRepository, { Entry } from './GraphRepository'
 
-export default async (req:Request, res:Response, pg:Knex, timeLogID:string) => {
-  let entry = await fetchEntryText(req.params.name, pg)
-    .catch(err => {throw err})
-  let newEntry = false
+export default async (name: string): Promise<Entry> => {
+    let entry = await graphRepository.findByName(name)
 
-  if (entry.name === '') {
-    const addEntry = async () => {
-      await pg('graphs').insert({
-        'text': '',
-        'img': '',
-        'name': req.params.name,
-        'outputUpdated': false
-      }).then((item:object) => {
-        console.timeLog(timeLogID)
-        console.info(`${timeLogID}: NEW ITEM: \"${req.params.name}\"`)
-      }).catch((err:Error) => {throw err})
+    if (entry) {
+        throw new Error("Already Exists")
+        // here also it should be some other type of error
+        // For example DuplicationError
+        // So Controller can return 409 - https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10
     }
 
-    await addEntry()
-
-    entry = {
-      text: '',
-      name: req.params.name,
-      outputUpdated: false
+    const entryToSave = {
+        text: "",
+        img: "",
+        name,
+        outputUpdated: false
     }
-    newEntry = true
-  }
+    graphRepository.save(entryToSave)
 
-  return {...entry, newEntry: newEntry};
+    return entryToSave;
 }

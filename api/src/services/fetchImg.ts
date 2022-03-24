@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import { fetchEntry } from './fetchEntry'
 import { spawn } from 'child_process'
 import { Knex } from 'knex'
+import graphRepository from './GraphRepository'
 
 interface fetchImg {
   content: string;
@@ -10,11 +10,10 @@ interface fetchImg {
 }
 
 export default async (req: Request, res: Response, pg: Knex, timeLogID: string): Promise<fetchImg> => {
-  let entry = await fetchEntry(req.params.name, pg)
-    .catch((err: Error) => { throw err })
+  let entry = await graphRepository.findByName(req.params.name) 
   let exists = true
 
-  if (entry.name === '') {
+  if (!entry) {
     exists = false
     console.info(`${timeLogID} ITEM \"${req.params.name}\" DOES NOT EXIST`)
     return { content: '', updated: false, exists }
@@ -34,6 +33,7 @@ export default async (req: Request, res: Response, pg: Knex, timeLogID: string):
           try {
             response = { content: data.toString(), updated: true, exists }
             // Add rendered image to database
+            // God fuck please make this code use the fucking repository update or smthing XDD
             pg('graphs').where({ name: req.params.name }).update({ outputUpdated: true, img: data.toString() }, ["name", "outputUpdated", "img"]).then(() => {
               console.info(`${timeLogID} UPDATED IMAGE UPLOADED TO DATABASE`)
             })
