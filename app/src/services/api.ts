@@ -2,26 +2,26 @@ import config from '../config'
 
 interface fetchTextObject {
   name: string,
-  input: string,
-  output: string,
+  text: string,
   outputUpdated: boolean,
   newEntry: boolean,
 }
 
 interface fetchImgObject {
-  file: string,
-  exists: boolean,
+  content: string,
+  updated: boolean,
+  exists: boolean
 }
 
 export default class api {
   id: string = ''
   async fetchText(): Promise<string> {
-    const response: fetchTextObject = await fetch(`http://${config.api.host}:${config.api.port}/p/${this.id}`)
-      .then(res => res.json() || { name: '', input: '', output: '', outputUpdated: false, newEntry: false })
-    return await fetch((new URL(`${response.input}.gz`, `http://${config.api.host}:${config.api.port}`)).href).then(res => res.text())
+    const response: fetchTextObject = await fetch(`${config.api.protocol}://${config.api.host}:${config.api.port}/p/${this.id}`)
+      .then(res => res.json() || { name: '', text: '', outputUpdated: false, newEntry: false })
+    return response.text
   }
   async postText(text: string): Promise<void> {
-    await fetch(`http://${config.api.host}:${config.api.port}/p/${this.id}`, {
+    await fetch(`${config.api.protocol}://${config.api.host}:${config.api.port}/p/${this.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -32,8 +32,8 @@ export default class api {
     }).then(res => console.info(res))
   }
   async fetchImg(): Promise<fetchImgObject> {
-    return await fetch(`http://${config.api.host}:${config.api.port}/i/${this.id}`)
-      .then(res => ({ file: "", exists: true }))
+    return await fetch(`${config.api.protocol}://${config.api.host}:${config.api.port}/i/${this.id}`)
+      .then(res => res.json() || { content: "", updated: false, exists: true })
   }
   constructor(id: string | undefined) {
     if (id) {
