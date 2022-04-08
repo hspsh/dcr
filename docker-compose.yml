@@ -16,27 +16,12 @@ services:
     profiles: ["back"]
     depends_on:
       - db
-      - versioning
   db:
     build: "./db/"
     restart: always
     expose:
       - "2137:5432"
     profiles: ["back", "db"]
-    depends_on:
-      - dbbackuping
-  dbbackuping:
-    image: alpine:edge
-    restart: always
-    volumes:
-      - "db:/dump"
-    profiles: ["back", "db"]
-  versioning:
-    build: "./docker/versioning"
-    restart: always
-    volumes:
-      - "bucket:/bucket"
-    profiles: ["back"]
 volumes:
   bucket:
   db:
