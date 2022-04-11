@@ -15,16 +15,16 @@ let text = async (req:Request, res:Response) => {
   console.time(id)
   fetchText(req.params.name)
     .then(item => res.json(item))
-    .catch(err => res.status(500).send(err)) // here should be an error checked for type in the future
+    .catch(err => {console.log(err); res.status(500).send(err)}) // here should be an error checked for type in the future
     .finally(() => console.timeEnd(id))
 }
 
 let sendText = async (req:Request, res:Response) => {
   const id = "postText " + crypto.randomBytes(4).toString("hex")
   console.time(id)
-  postText(req.params.name, req.body)
+  postText(req.params.name, req.body.content)
     .then(item => res.json(item))
-    .catch(err => res.status(500).send(err))
+    .catch(err => {console.log(err); res.status(500).send(err)})
     .finally(() => console.timeEnd(id))
 }
 
@@ -33,7 +33,7 @@ let image = async (req:Request, res:Response) => {
   console.time(id)
   fetchImg(req, res, pg, id)
     .then(item => item.exists ? res.json(item): res.status(404).json(item))
-    .catch(err => res.status(500).send(err))
+    .catch(err => {console.log(err); res.status(500).send(err)})
     .finally(() => console.timeEnd(id))
 }
 

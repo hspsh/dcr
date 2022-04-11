@@ -26,7 +26,9 @@ export class GraphRepository {
 
     // Usually ORMs implement it out of the box (like sequelize or typORM), here we have to implement it by ourselves
     async update(entry: Entry) {
-        return this.db('graphs').where({ name: entry.name }).update(entry)
+        return this.db('graphs')
+          .where({ name: entry.name })
+          .update({ text: entry.text })
     }
 
     async save(entry: Entry){
