@@ -1,19 +1,41 @@
 import Header from '../components/Header'
-import {useParams} from 'react-router-dom'
-import { useState, useEffect, useMemo } from 'react'
-import {default as mainApi} from '../services/api'
+import { useParams } from 'react-router-dom'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import mainApi from '../services/api'
+import _, { DebouncedFunc } from 'lodash'
 
 const Edit = () => {
-  const {id} = useParams()
+  const { id } = useParams()
   const api = useMemo(() => new mainApi(id), [id])
   const [code, setCode] = useState("")
+  const [timer, setTimer] = useState<Promise<void>>()
 
-  const [auto, setAuto] = useState(setInterval(setCode(api.fetchText), 800))
+  const fetchDebounce = useCallback(
+    _.debounce(async () => {
+      setCode(await api.fetchText())
+      setTimer(fetchDebounce())
+    }, 800), [])
+
+  useEffect(() => {
+    setTimer(fetchDebounce())
+  }, [])
+
+  const postDebounce = useCallback(_.debounce(async () => {
+    await api.postText(code)
+    setTimer(fetchDebounce())
+  }, 400), [])
+
+  useEffect(() => setTimer(fetchDebounce()), [])
+
+  const handleInput = () => {
+    fetchDebounce.cancel()
+    setTimer(postDebounce())
+  }
 
   return (
     <>
       <Header id={id || ''} />
-      <textarea value={code} onChange={e => handleInput(e.currentTarget.value)}></textarea>
+      <textarea value={code} onChange={() => handleInput()} />
     </>
   )
 }
