@@ -28,7 +28,7 @@ export class GraphRepository {
     async update(entry: Entry) {
         return this.db('graphs')
           .where({ name: entry.name })
-          .update({ text: entry.text })
+          .update({ text: entry.text, outputUpdated: entry.outputUpdated })
     }
 
     async save(entry: Entry){
