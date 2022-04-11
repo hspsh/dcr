@@ -8,34 +8,36 @@ const Edit = () => {
   const { id } = useParams()
   const api = useMemo(() => new mainApi(id), [id])
   const [code, setCode] = useState("")
-  const [timer, setTimer] = useState<Promise<void>>()
 
   const fetchDebounce = useCallback(
     _.debounce(async () => {
       setCode(await api.fetchText())
-      setTimer(fetchDebounce())
+      fetchDebounce()
     }, 800), [])
 
   useEffect(() => {
-    setTimer(fetchDebounce())
+    fetchDebounce()
   }, [])
 
-  const postDebounce = useCallback(_.debounce(async () => {
-    await api.postText(code)
-    setTimer(fetchDebounce())
+  const postDebounce = useCallback(_.debounce(async (text:string) => {
+    console.log(text)
+    await api.postText(text)
+    fetchDebounce()
   }, 400), [])
 
-  useEffect(() => setTimer(fetchDebounce()), [])
+  useEffect(() => {fetchDebounce()}, [])
 
-  const handleInput = () => {
+  const handleInput = (text: string) => {
+    setCode(text)
     fetchDebounce.cancel()
-    setTimer(postDebounce())
+    postDebounce.cancel()
+    postDebounce(text)
   }
 
   return (
     <>
       <Header id={id || ''} />
-      <textarea value={code} onChange={() => handleInput()} />
+      <textarea value={code} onChange={(e) => handleInput(e.currentTarget.value)} />
     </>
   )
 }
